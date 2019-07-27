@@ -37,7 +37,7 @@ func Add(ctx context.Context, log *logrus.Entry, mgr manager.Manager) error {
 func newReconciler(log *logrus.Entry, mgr manager.Manager) reconcile.Reconciler {
 	apiExtClient, err := apiextensionsclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
-		log.Fatal("Failed to initialize apiextensions client with %s", err)
+		log.Fatalf("Failed to initialize apiextensions client with %s", err)
 	}
 
 	kubeClientSet, err := kubernetes.NewForConfig(mgr.GetConfig())
@@ -47,7 +47,7 @@ func newReconciler(log *logrus.Entry, mgr manager.Manager) reconcile.Reconciler 
 
 	crdClient, err := crdv1alpha1client.NewForConfig(mgr.GetConfig())
 	if err != nil {
-		log.Fatal("Failed to initialize crdv1alpha1client client with %s", err)
+		log.Fatalf("Failed to initialize crdv1alpha1client client with %s", err)
 	}
 
 	return &Reconcilecrdrequest{

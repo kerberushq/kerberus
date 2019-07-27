@@ -30,7 +30,7 @@ func New(log *logrus.Entry, mgr manager.Manager) (*boostrap, error) {
 
 	apiExtClient, err := apiextensionsclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
-		log.Fatal("Failed to initialize apiextensions client with %s", err)
+		log.Fatalf("Failed to initialize apiextensions client with %s", err)
 		return nil, err
 	}
 

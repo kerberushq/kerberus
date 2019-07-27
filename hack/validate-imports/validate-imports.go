@@ -11,7 +11,9 @@ import (
 	"strings"
 )
 
-const local = "github.com/openshift/openshift-azure"
+const local = "github.com/kerberushq/kerberus"
+
+const ignore = "generated"
 
 type importSpecs []*ast.ImportSpec
 
@@ -124,7 +126,7 @@ func main() {
 				return err
 			}
 
-			if !info.IsDir() && strings.HasSuffix(path, ".go") {
+			if !strings.Contains(path, ignore) && !info.IsDir() && strings.HasSuffix(path, ".go") {
 				for _, err := range check(path) {
 					fmt.Printf("%s: %v\n", path, err)
 					rv = 1

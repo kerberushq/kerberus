@@ -6,9 +6,6 @@ import (
 	"os"
 	"runtime"
 
-	// Import all Kubernetes client auth plugins (e.g. Azure, GCP, OIDC, etc.)
-	_ "k8s.io/client-go/plugin/pkg/client/auth"
-
 	"github.com/operator-framework/operator-sdk/pkg/leader"
 	"github.com/operator-framework/operator-sdk/pkg/metrics"
 	"github.com/operator-framework/operator-sdk/pkg/restmapper"
@@ -16,9 +13,9 @@ import (
 	"github.com/sirupsen/logrus"
 	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
+	_ "k8s.io/client-go/plugin/pkg/client/auth"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
-	logf "sigs.k8s.io/controller-runtime/pkg/runtime/log"
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
 
 	"github.com/kerberushq/kerberus/pkg/apis"
@@ -31,9 +28,8 @@ var (
 	metricsHost       = "0.0.0.0"
 	metricsPort int32 = 8383
 )
-var log = logf.Log.WithName("cmd")
 
-func printVersion() {
+func printVersion(log *logrus.Entry) {
 	log.Info(fmt.Sprintf("Go Version: %s", runtime.Version()))
 	log.Info(fmt.Sprintf("Go OS/Arch: %s/%s", runtime.GOOS, runtime.GOARCH))
 	log.Info(fmt.Sprintf("Version of operator-sdk: %v", sdkVersion.Version))
@@ -42,12 +38,12 @@ func printVersion() {
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
-	// logrus.SetReportCaller(true)
+	logrus.SetReportCaller(true)
 	log := logrus.NewEntry(logrus.StandardLogger())
 
 	ctx := context.Background()
 
-	printVersion()
+	printVersion(log)
 
 	// Get a config to talk to the apiserver
 	cfg, err := config.GetConfig()
