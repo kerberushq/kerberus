@@ -134,7 +134,6 @@ func (r *Reconcilecrdrequest) Reconcile(request reconcile.Request) (reconcile.Re
 
 func (r *Reconcilecrdrequest) reconcoleCRDRequest(request reconcile.Request) (reconcile.Result, error) {
 	instance, err := r.crdClient.CRDRequests(request.Namespace).Get(request.Name, metav1.GetOptions{})
-	r.log.Debug(err)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// reconcilers will delete objects
