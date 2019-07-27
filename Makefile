@@ -37,6 +37,11 @@ minikube:
 	export KUBECONFIG=build/admin.kubeconfig
 	minikube start
 
+verify:
+	go vet ./...
+	./hack/verify/validate-code-format.sh
+	go run ./hack/validate-imports/validate-imports.go cmd hack pkg
+
 setup:
 	curl -JL -o /usr/local/bin/operator-sdk https://github.com/operator-framework/operator-sdk/releases/download/${SDK_RELEASE_VERSION}/operator-sdk-${SDK_RELEASE_VERSION}-x86_64-linux-gnu
 

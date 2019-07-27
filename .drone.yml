@@ -1,0 +1,24 @@
+---
+kind: pipeline
+name: linux-amd64
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: test
+  image: golang:1.12
+  commands:
+  - go test -v ./...
+  volumes:
+  - name: gopath
+    path: /go
+
+- name: verify
+  image: golang:1.12
+  commands:
+  - make verify
+  volumes:
+  - name: gopath
+    path: /go

@@ -1,3 +1,5 @@
+[![Build Status](https://cloud.drone.io/api/badges/kerberushq/kerberus/status.svg)](https://cloud.drone.io/kerberushq/kerberus)
+
 # Kerberus
 
 ## Kubernetes Kerberus Operator
