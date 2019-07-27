@@ -22,6 +22,7 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/runtime/signals"
 
 	"github.com/kerberushq/kerberus/pkg/apis"
+	"github.com/kerberushq/kerberus/pkg/bootstrap"
 	"github.com/kerberushq/kerberus/pkg/controller"
 )
 
@@ -41,7 +42,7 @@ func printVersion() {
 func main() {
 	logrus.SetLevel(logrus.DebugLevel)
 	logrus.SetFormatter(&logrus.TextFormatter{FullTimestamp: true})
-	logrus.SetReportCaller(true)
+	// logrus.SetReportCaller(true)
 	log := logrus.NewEntry(logrus.StandardLogger())
 
 	ctx := context.Background()
@@ -67,6 +68,17 @@ func main() {
 		MapperProvider:     restmapper.NewDynamicRESTMapper,
 		MetricsBindAddress: fmt.Sprintf("%s:%d", metricsHost, metricsPort),
 	})
+	if err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+
+	boot, err := bootstrap.New(log, mgr)
+	if err != nil {
+		log.Error(err, "")
+		os.Exit(1)
+	}
+	err = boot.Initialize()
 	if err != nil {
 		log.Error(err, "")
 		os.Exit(1)

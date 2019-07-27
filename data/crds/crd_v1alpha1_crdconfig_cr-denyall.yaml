@@ -1,9 +1,9 @@
 apiVersion: crd.kerberus.io/v1alpha1
 kind: CRDConfig
 metadata:
-  name: example-crdconfig-dennyall
+  name: crdconfig-dennyall
 spec:
   denyAll: true
   allow:
-  - "[a-zA-Z].example.com"
+  - "[a-zA-Z].openshift.io"
   - "[a-zA-Z].k8s.io"

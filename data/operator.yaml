@@ -24,6 +24,8 @@ spec:
           env:
             - name: OPERATOR_NAME
               value: "kerberus"
+            - name: BOOTSTRAP
+              value: "true"
             - name: POD_NAME
               valueFrom:
                 fieldRef:

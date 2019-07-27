@@ -38,6 +38,8 @@ github.com/emicklei/go-restful
 github.com/emicklei/go-restful/log
 # github.com/evanphx/json-patch v4.0.0+incompatible
 github.com/evanphx/json-patch
+# github.com/ghodss/yaml v1.0.0
+github.com/ghodss/yaml
 # github.com/go-logr/logr v0.1.0
 github.com/go-logr/logr
 # github.com/go-logr/zapr v0.1.0
@@ -297,11 +299,11 @@ k8s.io/apimachinery/pkg/runtime
 k8s.io/apimachinery/pkg/apis/meta/v1
 k8s.io/apimachinery/pkg/runtime/schema
 k8s.io/apimachinery/pkg/api/errors
+k8s.io/apimachinery/pkg/types
 k8s.io/apimachinery/pkg/util/diff
 k8s.io/apimachinery/pkg/runtime/serializer
 k8s.io/apimachinery/pkg/util/runtime
 k8s.io/apimachinery/pkg/watch
-k8s.io/apimachinery/pkg/types
 k8s.io/apimachinery/pkg/labels
 k8s.io/apimachinery/pkg/util/wait
 k8s.io/apimachinery/pkg/apis/meta/v1/unstructured
@@ -340,7 +342,6 @@ k8s.io/apimachinery/pkg/apis/meta/internalversion
 k8s.io/client-go/kubernetes/scheme
 k8s.io/client-go/plugin/pkg/client/auth
 k8s.io/client-go/kubernetes
-k8s.io/client-go/util/retry
 k8s.io/client-go/discovery
 k8s.io/client-go/rest
 k8s.io/client-go/util/flowcontrol
@@ -399,6 +400,7 @@ k8s.io/client-go/util/cert
 k8s.io/client-go/util/integer
 k8s.io/client-go/tools/pager
 k8s.io/client-go/util/buffer
+k8s.io/client-go/util/retry
 k8s.io/client-go/dynamic
 k8s.io/client-go/util/jsonpath
 k8s.io/client-go/tools/auth
