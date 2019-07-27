@@ -1,0 +1,8 @@
+apiVersion: crd.kerberus.io/v1alpha1
+kind: CRDConfig
+metadata:
+  name: example-crdconfig-allowall
+spec:
+  allowAll: true
+  deny:
+  - "[a-zA-Z].example.com"
