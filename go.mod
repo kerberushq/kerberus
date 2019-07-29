@@ -8,9 +8,10 @@ require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible // indirect
 	github.com/emicklei/go-restful v2.8.1+incompatible // indirect
 	github.com/ghodss/yaml v1.0.0
+	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/go-logr/logr v0.1.0 // indirect
 	github.com/go-logr/zapr v0.1.0 // indirect
-	github.com/go-openapi/spec v0.18.0 // indirect
+	github.com/go-openapi/spec v0.18.0
 	github.com/gogo/protobuf v1.2.1 // indirect
 	github.com/golang/groupcache v0.0.0-20180924190550-6f2cf27854a4 // indirect
 	github.com/golang/mock v1.2.0 // indirect
@@ -38,13 +39,14 @@ require (
 	go.uber.org/zap v1.9.1 // indirect
 	golang.org/x/time v0.0.0-20180412165947-fbb02b2291d2 // indirect
 	gopkg.in/inf.v0 v0.9.1 // indirect
-	k8s.io/api v0.0.0-00010101000000-000000000000 // indirect
+	k8s.io/api v0.0.0-00010101000000-000000000000
 	k8s.io/apiextensions-apiserver v0.0.0-20190228180357-d002e88f6236
 	k8s.io/apimachinery v0.0.0-20190612205821-1799e75a0719
 	k8s.io/client-go v2.0.0-alpha.0.0.20181126152608-d082d5923d3c+incompatible
 	k8s.io/code-generator v0.0.0-20190726022633-14ba7d03f06f // indirect
+	k8s.io/gengo v0.0.0-20190327210449-e17681d19d3a // indirect
 	k8s.io/klog v0.3.3 // indirect
-	k8s.io/kube-openapi v0.0.0-20180711000925-0cf8f7e6ed1d // indirect
+	k8s.io/kube-openapi v0.0.0-20180711000925-0cf8f7e6ed1d
 	sigs.k8s.io/controller-runtime v0.1.10
 	sigs.k8s.io/testing_frameworks v0.1.0 // indirect
 	sigs.k8s.io/yaml v1.1.0 // indirect

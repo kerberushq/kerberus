@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kerberus
+  namespace: kerberus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: kerberus
+  template:
+    metadata:
+      labels:
+        name: kerberus
+    spec:
+      serviceAccountName: kerberus
+      containers:
+        - name: kerberus
+          # Replace this with the built image name
+          image: quay.io/kerberus/kerberus:latest
+          command:
+            - kerberus
+          imagePullPolicy: Always
+          env:
+            - name: OPERATOR_NAME
+              value: "kerberus"
+            - name: BOOTSTRAP
+              value: "true"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name

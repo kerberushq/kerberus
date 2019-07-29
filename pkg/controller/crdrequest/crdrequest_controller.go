@@ -22,22 +22,22 @@ import (
 	"sigs.k8s.io/controller-runtime/pkg/reconcile"
 	"sigs.k8s.io/controller-runtime/pkg/source"
 
+	configv1alpha1 "github.com/kerberushq/kerberus/pkg/apis/config/v1alpha1"
 	crdv1alpha1 "github.com/kerberushq/kerberus/pkg/apis/crd/v1alpha1"
-	crdv1alpha1client "github.com/kerberushq/kerberus/pkg/generated/clientset/versioned/typed/crd/v1alpha1"
-	"github.com/kerberushq/kerberus/pkg/util/sort"
+	crdv1alpha1client "github.com/kerberushq/kerberus/pkg/generated/crd/clientset/versioned/typed/crd/v1alpha1"
 )
 
 // Add creates a new crdrequest Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
-func Add(ctx context.Context, log *logrus.Entry, mgr manager.Manager) error {
-	return add(ctx, log, mgr, newReconciler(log, mgr))
+func Add(ctx context.Context, log *logrus.Entry, config configv1alpha1.Config, mgr manager.Manager) error {
+	return add(ctx, log, mgr, newReconciler(log, config, mgr))
 }
 
 // newReconciler returns a new reconcile.Reconciler
-func newReconciler(log *logrus.Entry, mgr manager.Manager) reconcile.Reconciler {
+func newReconciler(log *logrus.Entry, config configv1alpha1.Config, mgr manager.Manager) reconcile.Reconciler {
 	apiExtClient, err := apiextensionsclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
-		log.Fatal("Failed to initialize apiextensions client with %s", err)
+		log.Fatalf("Failed to initialize apiextensions client with %s", err)
 	}
 
 	kubeClientSet, err := kubernetes.NewForConfig(mgr.GetConfig())
@@ -47,7 +47,7 @@ func newReconciler(log *logrus.Entry, mgr manager.Manager) reconcile.Reconciler 
 
 	crdClient, err := crdv1alpha1client.NewForConfig(mgr.GetConfig())
 	if err != nil {
-		log.Fatal("Failed to initialize crdv1alpha1client client with %s", err)
+		log.Fatalf("Failed to initialize crdv1alpha1client client with %s", err)
 	}
 
 	return &Reconcilecrdrequest{
@@ -55,6 +55,7 @@ func newReconciler(log *logrus.Entry, mgr manager.Manager) reconcile.Reconciler 
 		crdClient:     crdClient,
 		apiExtClient:  apiExtClient,
 
+		config: config,
 		scheme: mgr.GetScheme(),
 		log:    log,
 	}
@@ -93,6 +94,7 @@ type Reconcilecrdrequest struct {
 	crdClient     crdv1alpha1client.CrdV1alpha1Interface
 	apiExtClient  apiextensionsclientset.Interface
 
+	config configv1alpha1.Config
 	scheme *runtime.Scheme
 	log    *logrus.Entry
 }
@@ -134,6 +136,7 @@ func (r *Reconcilecrdrequest) Reconcile(request reconcile.Request) (reconcile.Re
 
 func (r *Reconcilecrdrequest) reconcoleCRDRequest(request reconcile.Request) (reconcile.Result, error) {
 	instance, err := r.crdClient.CRDRequests(request.Namespace).Get(request.Name, metav1.GetOptions{})
+	r.log.Debug(err)
 	if err != nil {
 		if errors.IsNotFound(err) {
 			// reconcilers will delete objects
@@ -150,6 +153,7 @@ func (r *Reconcilecrdrequest) reconcoleCRDRequest(request reconcile.Request) (re
 	admit, err := r.admitCRDRequest(instance)
 	// do not admit
 	if !admit {
+		r.log.Debugf("admit deny CRDRequest %s/%s", request.Namespace, request.Name)
 		r.updateStatus(instance, false, crdv1alpha1.StateFailed, err.Error())
 		return reconcile.Result{Requeue: false}, nil
 	}
@@ -158,7 +162,7 @@ func (r *Reconcilecrdrequest) reconcoleCRDRequest(request reconcile.Request) (re
 		r.log.Errorf("error [%s] with admin status %t not allowed", err.Error(), admit)
 		return reconcile.Result{Requeue: false}, nil
 	}
-
+	r.log.Debugf("admit CRDRequest %s/%s", request.Namespace, request.Name)
 	for _, crd := range instance.Spec.CRDList {
 		r.log.Debugf("create %s", crd.GetName())
 		err := r.createOrUpdateCRDRequest(instance)
@@ -212,42 +216,25 @@ func (r *Reconcilecrdrequest) createOrUpdateCRDRequest(instance *crdv1alpha1.CRD
 func (r *Reconcilecrdrequest) admitCRDRequest(instance *crdv1alpha1.CRDRequest) (bool, error) {
 	var denyAll bool
 	var allowAll bool
-
-	configList, err := r.crdClient.CRDConfigs("").List(metav1.ListOptions{})
-	if err != nil {
-		return false, err
-	}
-
-	var allow []string
-	var deny []string
-	state := make(map[string]bool)
-	for _, list := range configList.Items {
-		for _, rule := range list.Spec.Allow {
-			denyAll = list.Spec.DenyAll
-			allow = append(allow, rule)
-		}
-		for _, rule := range list.Spec.Deny {
-			allowAll = list.Spec.AllowAll
-			deny = append(deny, rule)
-		}
-	}
-	if (denyAll && allowAll) || (!denyAll && !allowAll) {
+	var state map[string]bool
+	if (r.config.Spec.CRDRequest.DenyAll && r.config.Spec.CRDRequest.AllowAll) ||
+		(!r.config.Spec.CRDRequest.DenyAll && !r.config.Spec.CRDRequest.AllowAll) {
 		allowAll = false
 		denyAll = true
+	} else {
+		denyAll = r.config.Spec.CRDRequest.DenyAll
+		allowAll = r.config.Spec.CRDRequest.AllowAll
 	}
 
-	allow = sort.Unique(allow)
-	deny = sort.Unique(deny)
-
 	r.log.Debugf("allowAll %t, denyAll %t", allowAll, denyAll)
-	r.log.Debugf("allow list %s", allow)
-	r.log.Debugf("deny list %s", deny)
+	r.log.Debugf("allow list %s", r.config.Spec.CRDRequest.Allow)
+	r.log.Debugf("deny list %s", r.config.Spec.CRDRequest.Deny)
 	for _, crd := range instance.Spec.CRDList {
 		// if allowAll - confirm with deny list
 		// state should be all false to admit
 
 		if allowAll {
-			for _, rx := range deny {
+			for _, rx := range r.config.Spec.CRDRequest.Allow {
 				r.log.Debugf("matching %s with %s", rx, crd.GetName())
 				found, _ := regexp.MatchString(rx, crd.GetName())
 				if found {
@@ -261,7 +248,7 @@ func (r *Reconcilecrdrequest) admitCRDRequest(instance *crdv1alpha1.CRDRequest) 
 		if denyAll {
 			r.log.Debug(crd.GetName())
 			state[crd.GetName()] = false
-			for _, rx := range allow {
+			for _, rx := range r.config.Spec.CRDRequest.Deny {
 				r.log.Debugf("matching %s with %s", rx, crd.GetName())
 				found, _ := regexp.MatchString(rx, crd.GetName())
 				if found {

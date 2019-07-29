@@ -25,10 +25,14 @@ CODEGEN_PKG=${CODEGEN_PKG:-$(cd "${SCRIPT_ROOT}"; ls -d -1 ./vendor/k8s.io/code-
 # --output-base    because this script should also be able to run inside the vendor dir of
 #                  k8s.io/kubernetes. The output-base is needed for the generators to output into the vendor dir
 #                  instead of the $GOPATH directly. For normal projects this can be dropped.
-bash "${CODEGEN_PKG}"/generate-groups.sh "deepcopy,client,informer,lister" \
-  github.com/kerberushq/kerberus/pkg/generated github.com/kerberushq/kerberus/pkg/apis \
-  crd:v1alpha1 \
-  --go-header-file "${SCRIPT_ROOT}"/hack/boilerplate.go.txt
-
+bash "${CODEGEN_PKG}"/generate-groups.sh "deepcopy,client,informer,lister,openapi" \
+  github.com/kerberushq/kerberus/pkg/generated/config github.com/kerberushq/kerberus/pkg/apis \
+  config:v1alpha1
+bash "${CODEGEN_PKG}"/generate-groups.sh "deepcopy,client,informer,lister,openapi" \
+  github.com/kerberushq/kerberus/pkg/generated/crd github.com/kerberushq/kerberus/pkg/apis \
+  crd:v1alpha1
+bash "${CODEGEN_PKG}"/generate-groups.sh "deepcopy,client,informer,lister,openapi" \
+  github.com/kerberushq/kerberus/pkg/generated/rbac github.com/kerberushq/kerberus/pkg/apis \
+  rbac:v1alpha1
 # To use your own boilerplate text append:
 #   --go-header-file "${SCRIPT_ROOT}"/hack/custom-boilerplate.go.txt
