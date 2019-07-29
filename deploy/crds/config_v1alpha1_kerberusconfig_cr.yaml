@@ -1,0 +1,17 @@
+apiVersion: config.kerberus.io/v1alpha1
+kind: KerberusConfig
+metadata:
+  name: example-kerberus
+spec:
+  crdRequest:
+    enable: true
+    denyAll: true
+    allow:
+    - "[a-zA-Z].openshift.io"
+    - "[a-zA-Z].k8s.io"
+  rbacConfig:
+    enable: true
+    blacklist:
+    - openshift-*
+    - default
+    - kube-*

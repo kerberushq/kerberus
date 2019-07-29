@@ -37,7 +37,7 @@ func Add(ctx context.Context, log *logrus.Entry, mgr manager.Manager) error {
 		log.Fatal("Failed to initialize configv1alpha1client client with %s", err)
 	}
 
-	configList, err := configClient.Kerberuses("kerberus").List(metav1.ListOptions{})
+	configList, err := configClient.KerberusConfigs("kerberus").List(metav1.ListOptions{})
 	if err != nil {
 		log.Fatalf("Failed to initialize kerberus with config %s", err)
 		os.Exit(1)
@@ -50,7 +50,7 @@ func Add(ctx context.Context, log *logrus.Entry, mgr manager.Manager) error {
 }
 
 // newReconciler returns a new reconcile.Reconciler
-func newReconciler(log *logrus.Entry, config configv1alpha1.Kerberus, mgr manager.Manager) reconcile.Reconciler {
+func newReconciler(log *logrus.Entry, config configv1alpha1.KerberusConfig, mgr manager.Manager) reconcile.Reconciler {
 	apiExtClient, err := apiextensionsclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		log.Fatal("Failed to initialize apiextensions client with %s", err)
@@ -111,7 +111,7 @@ type ReconcileNamespace struct {
 	rbacClient    rbacv1alpha1client.RbacV1alpha1Interface
 	apiExtClient  apiextensionsclientset.Interface
 
-	config configv1alpha1.Kerberus
+	config configv1alpha1.KerberusConfig
 	scheme *runtime.Scheme
 	log    *logrus.Entry
 }

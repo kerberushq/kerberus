@@ -18,10 +18,10 @@ limitations under the License.
 
 package v1alpha1
 
-// KerberusListerExpansion allows custom methods to be added to
-// KerberusLister.
-type KerberusListerExpansion interface{}
+// KerberusConfigListerExpansion allows custom methods to be added to
+// KerberusConfigLister.
+type KerberusConfigListerExpansion interface{}
 
-// KerberusNamespaceListerExpansion allows custom methods to be added to
-// KerberusNamespaceLister.
-type KerberusNamespaceListerExpansion interface{}
+// KerberusConfigNamespaceListerExpansion allows custom methods to be added to
+// KerberusConfigNamespaceLister.
+type KerberusConfigNamespaceListerExpansion interface{}

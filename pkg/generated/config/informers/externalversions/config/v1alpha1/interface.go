@@ -24,8 +24,8 @@ import (
 
 // Interface provides access to all the informers in this group version.
 type Interface interface {
-	// Kerberuses returns a KerberusInformer.
-	Kerberuses() KerberusInformer
+	// KerberusConfigs returns a KerberusConfigInformer.
+	KerberusConfigs() KerberusConfigInformer
 }
 
 type version struct {
@@ -39,7 +39,7 @@ func New(f internalinterfaces.SharedInformerFactory, namespace string, tweakList
 	return &version{factory: f, namespace: namespace, tweakListOptions: tweakListOptions}
 }
 
-// Kerberuses returns a KerberusInformer.
-func (v *version) Kerberuses() KerberusInformer {
-	return &kerberusInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
+// KerberusConfigs returns a KerberusConfigInformer.
+func (v *version) KerberusConfigs() KerberusConfigInformer {
+	return &kerberusConfigInformer{factory: v.factory, namespace: v.namespace, tweakListOptions: v.tweakListOptions}
 }

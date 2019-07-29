@@ -25,22 +25,22 @@ import (
 	rest "k8s.io/client-go/rest"
 )
 
-type CrdV1alpha1Interface interface {
+type ConfigV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	KerberusesGetter
+	KerberusConfigsGetter
 }
 
-// CrdV1alpha1Client is used to interact with features provided by the crd.kerberus.io group.
-type CrdV1alpha1Client struct {
+// ConfigV1alpha1Client is used to interact with features provided by the config.kerberus.io group.
+type ConfigV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *CrdV1alpha1Client) Kerberuses(namespace string) KerberusInterface {
-	return newKerberuses(c, namespace)
+func (c *ConfigV1alpha1Client) KerberusConfigs(namespace string) KerberusConfigInterface {
+	return newKerberusConfigs(c, namespace)
 }
 
-// NewForConfig creates a new CrdV1alpha1Client for the given config.
-func NewForConfig(c *rest.Config) (*CrdV1alpha1Client, error) {
+// NewForConfig creates a new ConfigV1alpha1Client for the given config.
+func NewForConfig(c *rest.Config) (*ConfigV1alpha1Client, error) {
 	config := *c
 	if err := setConfigDefaults(&config); err != nil {
 		return nil, err
@@ -49,12 +49,12 @@ func NewForConfig(c *rest.Config) (*CrdV1alpha1Client, error) {
 	if err != nil {
 		return nil, err
 	}
-	return &CrdV1alpha1Client{client}, nil
+	return &ConfigV1alpha1Client{client}, nil
 }
 
-// NewForConfigOrDie creates a new CrdV1alpha1Client for the given config and
+// NewForConfigOrDie creates a new ConfigV1alpha1Client for the given config and
 // panics if there is an error in the config.
-func NewForConfigOrDie(c *rest.Config) *CrdV1alpha1Client {
+func NewForConfigOrDie(c *rest.Config) *ConfigV1alpha1Client {
 	client, err := NewForConfig(c)
 	if err != nil {
 		panic(err)
@@ -62,9 +62,9 @@ func NewForConfigOrDie(c *rest.Config) *CrdV1alpha1Client {
 	return client
 }
 
-// New creates a new CrdV1alpha1Client for the given RESTClient.
-func New(c rest.Interface) *CrdV1alpha1Client {
-	return &CrdV1alpha1Client{c}
+// New creates a new ConfigV1alpha1Client for the given RESTClient.
+func New(c rest.Interface) *ConfigV1alpha1Client {
+	return &ConfigV1alpha1Client{c}
 }
 
 func setConfigDefaults(config *rest.Config) error {
@@ -82,7 +82,7 @@ func setConfigDefaults(config *rest.Config) error {
 
 // RESTClient returns a RESTClient that is used to communicate
 // with API server by this client implementation.
-func (c *CrdV1alpha1Client) RESTClient() rest.Interface {
+func (c *ConfigV1alpha1Client) RESTClient() rest.Interface {
 	if c == nil {
 		return nil
 	}

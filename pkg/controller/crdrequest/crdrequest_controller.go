@@ -38,7 +38,7 @@ func Add(ctx context.Context, log *logrus.Entry, mgr manager.Manager) error {
 		log.Fatal("Failed to initialize configv1alpha1client client with %s", err)
 	}
 
-	configList, err := configClient.Kerberuses("kerberus").List(metav1.ListOptions{})
+	configList, err := configClient.KerberusConfigs("kerberus").List(metav1.ListOptions{})
 	if err != nil {
 		log.Fatalf("Failed to initialize kerberus with config %s", err)
 		os.Exit(1)
@@ -51,7 +51,7 @@ func Add(ctx context.Context, log *logrus.Entry, mgr manager.Manager) error {
 }
 
 // newReconciler returns a new reconcile.Reconciler
-func newReconciler(log *logrus.Entry, config configv1alpha1.Kerberus, mgr manager.Manager) reconcile.Reconciler {
+func newReconciler(log *logrus.Entry, config configv1alpha1.KerberusConfig, mgr manager.Manager) reconcile.Reconciler {
 	apiExtClient, err := apiextensionsclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		log.Fatalf("Failed to initialize apiextensions client with %s", err)
@@ -111,7 +111,7 @@ type Reconcilecrdrequest struct {
 	crdClient     crdv1alpha1client.CrdV1alpha1Interface
 	apiExtClient  apiextensionsclientset.Interface
 
-	config configv1alpha1.Kerberus
+	config configv1alpha1.KerberusConfig
 	scheme *runtime.Scheme
 	log    *logrus.Entry
 }
@@ -231,26 +231,33 @@ func (r *Reconcilecrdrequest) createOrUpdateCRDRequest(instance *crdv1alpha1.CRD
 }
 
 func (r *Reconcilecrdrequest) admitCRDRequest(instance *crdv1alpha1.CRDRequest) (bool, error) {
-	var denyAll bool
-	var allowAll bool
-	var state map[string]bool
+	state := make(map[string]bool)
+	//TODO: This should be in config validator
+	// if both not nil and both same value - default
 	if (r.config.Spec.CRDRequest.DenyAll && r.config.Spec.CRDRequest.AllowAll) ||
 		(!r.config.Spec.CRDRequest.DenyAll && !r.config.Spec.CRDRequest.AllowAll) {
-		allowAll = false
-		denyAll = true
-	} else {
-		denyAll = r.config.Spec.CRDRequest.DenyAll
-		allowAll = r.config.Spec.CRDRequest.AllowAll
+		r.config.Spec.CRDRequest.AllowAll = false
+		r.config.Spec.CRDRequest.DenyAll = true
+	}
+	// if DenyAll not nil - set other accordingly - defaulting code
+	if r.config.Spec.CRDRequest.DenyAll {
+		r.config.Spec.CRDRequest.AllowAll = false
+
 	}
 
-	r.log.Debugf("allowAll %t, denyAll %t", allowAll, denyAll)
+	if r.config.Spec.CRDRequest.AllowAll {
+		r.config.Spec.CRDRequest.DenyAll = false
+
+	}
+
+	r.log.Debugf("allowAll %t, denyAll %t", r.config.Spec.CRDRequest.AllowAll, r.config.Spec.CRDRequest.DenyAll)
 	r.log.Debugf("allow list %s", r.config.Spec.CRDRequest.Allow)
 	r.log.Debugf("deny list %s", r.config.Spec.CRDRequest.Deny)
 	for _, crd := range instance.Spec.CRDList {
 		// if allowAll - confirm with deny list
 		// state should be all false to admit
 
-		if allowAll {
+		if r.config.Spec.CRDRequest.AllowAll {
 			for _, rx := range r.config.Spec.CRDRequest.Allow {
 				r.log.Debugf("matching %s with %s", rx, crd.GetName())
 				found, _ := regexp.MatchString(rx, crd.GetName())
@@ -262,7 +269,7 @@ func (r *Reconcilecrdrequest) admitCRDRequest(instance *crdv1alpha1.CRDRequest) 
 
 		// of denyAll - confirm with allow list
 		// state should be all true to admit
-		if denyAll {
+		if r.config.Spec.CRDRequest.DenyAll {
 			r.log.Debug(crd.GetName())
 			state[crd.GetName()] = false
 			for _, rx := range r.config.Spec.CRDRequest.Deny {
@@ -276,7 +283,7 @@ func (r *Reconcilecrdrequest) admitCRDRequest(instance *crdv1alpha1.CRDRequest) 
 	}
 
 	// check state and admit/deny
-	if allowAll {
+	if r.config.Spec.CRDRequest.AllowAll {
 		for name, crd := range state {
 			if crd {
 				return false, fmt.Errorf("object %s was denied", name)
@@ -285,7 +292,7 @@ func (r *Reconcilecrdrequest) admitCRDRequest(instance *crdv1alpha1.CRDRequest) 
 		return true, nil
 	}
 
-	if denyAll {
+	if r.config.Spec.CRDRequest.DenyAll {
 		for name, crd := range state {
 			if !crd {
 				return false, fmt.Errorf("object %s was not in allow list", name)

@@ -24,7 +24,7 @@ func AddToManager(ctx context.Context, log *logrus.Entry, m manager.Manager) err
 		log.Fatalf("Failed to initialize configv1alpha1client client with %s", err)
 	}
 
-	configList, err := configClient.Kerberuses("kerberus").List(metav1.ListOptions{})
+	configList, err := configClient.KerberusConfigs("kerberus").List(metav1.ListOptions{})
 	if err != nil {
 		log.Fatalf("Failed to initialize kerberus with config %s", err)
 		os.Exit(1)

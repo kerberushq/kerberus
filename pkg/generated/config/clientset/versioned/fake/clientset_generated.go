@@ -20,8 +20,8 @@ package fake
 
 import (
 	clientset "github.com/kerberushq/kerberus/pkg/generated/config/clientset/versioned"
-	crdv1alpha1 "github.com/kerberushq/kerberus/pkg/generated/config/clientset/versioned/typed/config/v1alpha1"
-	fakecrdv1alpha1 "github.com/kerberushq/kerberus/pkg/generated/config/clientset/versioned/typed/config/v1alpha1/fake"
+	configv1alpha1 "github.com/kerberushq/kerberus/pkg/generated/config/clientset/versioned/typed/config/v1alpha1"
+	fakeconfigv1alpha1 "github.com/kerberushq/kerberus/pkg/generated/config/clientset/versioned/typed/config/v1alpha1/fake"
 	"k8s.io/apimachinery/pkg/runtime"
 	"k8s.io/apimachinery/pkg/watch"
 	"k8s.io/client-go/discovery"
@@ -71,12 +71,12 @@ func (c *Clientset) Discovery() discovery.DiscoveryInterface {
 
 var _ clientset.Interface = &Clientset{}
 
-// CrdV1alpha1 retrieves the CrdV1alpha1Client
-func (c *Clientset) CrdV1alpha1() crdv1alpha1.CrdV1alpha1Interface {
-	return &fakecrdv1alpha1.FakeCrdV1alpha1{Fake: &c.Fake}
+// ConfigV1alpha1 retrieves the ConfigV1alpha1Client
+func (c *Clientset) ConfigV1alpha1() configv1alpha1.ConfigV1alpha1Interface {
+	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
 }
 
-// Crd retrieves the CrdV1alpha1Client
-func (c *Clientset) Crd() crdv1alpha1.CrdV1alpha1Interface {
-	return &fakecrdv1alpha1.FakeCrdV1alpha1{Fake: &c.Fake}
+// Config retrieves the ConfigV1alpha1Client
+func (c *Clientset) Config() configv1alpha1.ConfigV1alpha1Interface {
+	return &fakeconfigv1alpha1.FakeConfigV1alpha1{Fake: &c.Fake}
 }
