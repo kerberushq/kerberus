@@ -3,6 +3,7 @@ package crdrequest
 import (
 	"context"
 	"fmt"
+	"os"
 	"regexp"
 	"time"
 
@@ -24,17 +25,33 @@ import (
 
 	configv1alpha1 "github.com/kerberushq/kerberus/pkg/apis/config/v1alpha1"
 	crdv1alpha1 "github.com/kerberushq/kerberus/pkg/apis/crd/v1alpha1"
+	configv1alpha1client "github.com/kerberushq/kerberus/pkg/generated/config/clientset/versioned/typed/config/v1alpha1"
 	crdv1alpha1client "github.com/kerberushq/kerberus/pkg/generated/crd/clientset/versioned/typed/crd/v1alpha1"
 )
 
 // Add creates a new crdrequest Controller and adds it to the Manager. The Manager will set fields on the Controller
 // and Start it when the Manager is Started.
-func Add(ctx context.Context, log *logrus.Entry, config configv1alpha1.Config, mgr manager.Manager) error {
-	return add(ctx, log, mgr, newReconciler(log, config, mgr))
+func Add(ctx context.Context, log *logrus.Entry, mgr manager.Manager) error {
+	// Get Config client for controllers
+	configClient, err := configv1alpha1client.NewForConfig(mgr.GetConfig())
+	if err != nil {
+		log.Fatal("Failed to initialize configv1alpha1client client with %s", err)
+	}
+
+	configList, err := configClient.Kerberuses("kerberus").List(metav1.ListOptions{})
+	if err != nil {
+		log.Fatalf("Failed to initialize kerberus with config %s", err)
+		os.Exit(1)
+	}
+	config := configList.Items[0]
+	if config.Spec.CRDRequest.Enable {
+		return add(ctx, log, mgr, newReconciler(log, config, mgr))
+	}
+	return nil
 }
 
 // newReconciler returns a new reconcile.Reconciler
-func newReconciler(log *logrus.Entry, config configv1alpha1.Config, mgr manager.Manager) reconcile.Reconciler {
+func newReconciler(log *logrus.Entry, config configv1alpha1.Kerberus, mgr manager.Manager) reconcile.Reconciler {
 	apiExtClient, err := apiextensionsclientset.NewForConfig(mgr.GetConfig())
 	if err != nil {
 		log.Fatalf("Failed to initialize apiextensions client with %s", err)
@@ -94,7 +111,7 @@ type Reconcilecrdrequest struct {
 	crdClient     crdv1alpha1client.CrdV1alpha1Interface
 	apiExtClient  apiextensionsclientset.Interface
 
-	config configv1alpha1.Config
+	config configv1alpha1.Kerberus
 	scheme *runtime.Scheme
 	log    *logrus.Entry
 }

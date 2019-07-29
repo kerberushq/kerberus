@@ -12,3 +12,9 @@ rules:
   - configmaps
   verbs:
   - '*'
+- apiGroups:
+  - config.kerberus.io
+  resources:
+  - '*'
+  verbs:
+  - '*'

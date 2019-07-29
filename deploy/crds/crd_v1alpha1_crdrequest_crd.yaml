@@ -33,6 +33,8 @@ spec:
               items:
                 type: object
               type: array
+            owned:
+              type: boolean
           type: object
         status:
           properties:

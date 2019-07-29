@@ -15,7 +15,6 @@ import (
 	sdkVersion "github.com/operator-framework/operator-sdk/version"
 	"github.com/sirupsen/logrus"
 	extapi "k8s.io/apiextensions-apiserver/pkg/apis/apiextensions/v1beta1"
-	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	kscheme "k8s.io/client-go/kubernetes/scheme"
 	"sigs.k8s.io/controller-runtime/pkg/client/config"
 	"sigs.k8s.io/controller-runtime/pkg/manager"
@@ -25,7 +24,6 @@ import (
 	"github.com/kerberushq/kerberus/pkg/apis"
 	"github.com/kerberushq/kerberus/pkg/bootstrap"
 	"github.com/kerberushq/kerberus/pkg/controller"
-	configv1alpha1client "github.com/kerberushq/kerberus/pkg/generated/config/clientset/versioned/typed/config/v1alpha1"
 )
 
 // Change below variables to serve metrics on different host or port.
@@ -104,24 +102,6 @@ func main() {
 		log.Error(err, "")
 		os.Exit(1)
 	}
-
-	// Get Config client for controllers
-	//TODO: All this is in the wrong place
-	configClient, err := configv1alpha1client.NewForConfig(mgr.GetConfig())
-	if err != nil {
-		log.Fatal("Failed to initialize configv1alpha1client client with %s", err)
-	}
-
-	config, err := configClient.Configs("kerberus").List(metav1.ListOptions{})
-	if err != nil {
-		log.Fatalf("Failed to initialize kerberus with config %s", err)
-		os.Exit(1)
-	}
-	if len(config.Items) > 1 {
-		log.Fatal("Found multiple config object for kerberus. Only one config instance is allowed")
-		os.Exit(1)
-	}
-	// TODO: Add validation of the config here
 
 	// Setup all Controllers
 	if err := controller.AddToManager(ctx, log, mgr); err != nil {

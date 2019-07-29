@@ -27,7 +27,7 @@ import (
 
 type CrdV1alpha1Interface interface {
 	RESTClient() rest.Interface
-	ConfigsGetter
+	KerberusesGetter
 }
 
 // CrdV1alpha1Client is used to interact with features provided by the crd.kerberus.io group.
@@ -35,8 +35,8 @@ type CrdV1alpha1Client struct {
 	restClient rest.Interface
 }
 
-func (c *CrdV1alpha1Client) Configs(namespace string) ConfigInterface {
-	return newConfigs(c, namespace)
+func (c *CrdV1alpha1Client) Kerberuses(namespace string) KerberusInterface {
+	return newKerberuses(c, namespace)
 }
 
 // NewForConfig creates a new CrdV1alpha1Client for the given config.

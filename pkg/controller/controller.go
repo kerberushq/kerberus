@@ -18,28 +18,31 @@ var AddToManagerFuncs []func(manager.Manager) error
 
 // AddToManager adds all Controllers to the Manager
 func AddToManager(ctx context.Context, log *logrus.Entry, m manager.Manager) error {
-
 	// Get Config client for controllers
 	configClient, err := configv1alpha1client.NewForConfig(m.GetConfig())
 	if err != nil {
-		log.Fatal("Failed to initialize configv1alpha1client client with %s", err)
+		log.Fatalf("Failed to initialize configv1alpha1client client with %s", err)
 	}
 
-	configList, err := configClient.Configs("kerberus").List(metav1.ListOptions{})
+	configList, err := configClient.Kerberuses("kerberus").List(metav1.ListOptions{})
 	if err != nil {
-		log.Fatal("Failed to initialize kerberus with config %s", err)
+		log.Fatalf("Failed to initialize kerberus with config %s", err)
+		os.Exit(1)
+	}
+	if len(configList.Items) > 1 {
+		log.Fatal("Found multiple config object for kerberus. Only one config instance is allowed")
 		os.Exit(1)
 	}
 	config := configList.Items[0]
 
 	if config.Spec.CRDRequest.Enable {
-		if err := crdrequest.Add(ctx, log, config, m); err != nil {
+		if err := crdrequest.Add(ctx, log, m); err != nil {
 			return err
 		}
 	}
 
 	if config.Spec.RBACConfig.Enable {
-		if err := namespacectrl.Add(ctx, log, config, m); err != nil {
+		if err := namespacectrl.Add(ctx, log, m); err != nil {
 			return err
 		}
 	}

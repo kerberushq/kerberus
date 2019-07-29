@@ -31,59 +31,59 @@ import (
 	cache "k8s.io/client-go/tools/cache"
 )
 
-// ConfigInformer provides access to a shared informer and lister for
-// Configs.
-type ConfigInformer interface {
+// KerberusInformer provides access to a shared informer and lister for
+// Kerberuses.
+type KerberusInformer interface {
 	Informer() cache.SharedIndexInformer
-	Lister() v1alpha1.ConfigLister
+	Lister() v1alpha1.KerberusLister
 }
 
-type configInformer struct {
+type kerberusInformer struct {
 	factory          internalinterfaces.SharedInformerFactory
 	tweakListOptions internalinterfaces.TweakListOptionsFunc
 	namespace        string
 }
 
-// NewConfigInformer constructs a new informer for Config type.
+// NewKerberusInformer constructs a new informer for Kerberus type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewConfigInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
-	return NewFilteredConfigInformer(client, namespace, resyncPeriod, indexers, nil)
+func NewKerberusInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers) cache.SharedIndexInformer {
+	return NewFilteredKerberusInformer(client, namespace, resyncPeriod, indexers, nil)
 }
 
-// NewFilteredConfigInformer constructs a new informer for Config type.
+// NewFilteredKerberusInformer constructs a new informer for Kerberus type.
 // Always prefer using an informer factory to get a shared informer instead of getting an independent
 // one. This reduces memory footprint and number of connections to the server.
-func NewFilteredConfigInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
+func NewFilteredKerberusInformer(client versioned.Interface, namespace string, resyncPeriod time.Duration, indexers cache.Indexers, tweakListOptions internalinterfaces.TweakListOptionsFunc) cache.SharedIndexInformer {
 	return cache.NewSharedIndexInformer(
 		&cache.ListWatch{
 			ListFunc: func(options v1.ListOptions) (runtime.Object, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.CrdV1alpha1().Configs(namespace).List(options)
+				return client.CrdV1alpha1().Kerberuses(namespace).List(options)
 			},
 			WatchFunc: func(options v1.ListOptions) (watch.Interface, error) {
 				if tweakListOptions != nil {
 					tweakListOptions(&options)
 				}
-				return client.CrdV1alpha1().Configs(namespace).Watch(options)
+				return client.CrdV1alpha1().Kerberuses(namespace).Watch(options)
 			},
 		},
-		&configv1alpha1.Config{},
+		&configv1alpha1.Kerberus{},
 		resyncPeriod,
 		indexers,
 	)
 }
 
-func (f *configInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
-	return NewFilteredConfigInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
+func (f *kerberusInformer) defaultInformer(client versioned.Interface, resyncPeriod time.Duration) cache.SharedIndexInformer {
+	return NewFilteredKerberusInformer(client, f.namespace, resyncPeriod, cache.Indexers{cache.NamespaceIndex: cache.MetaNamespaceIndexFunc}, f.tweakListOptions)
 }
 
-func (f *configInformer) Informer() cache.SharedIndexInformer {
-	return f.factory.InformerFor(&configv1alpha1.Config{}, f.defaultInformer)
+func (f *kerberusInformer) Informer() cache.SharedIndexInformer {
+	return f.factory.InformerFor(&configv1alpha1.Kerberus{}, f.defaultInformer)
 }
 
-func (f *configInformer) Lister() v1alpha1.ConfigLister {
-	return v1alpha1.NewConfigLister(f.Informer().GetIndexer())
+func (f *kerberusInformer) Lister() v1alpha1.KerberusLister {
+	return v1alpha1.NewKerberusLister(f.Informer().GetIndexer())
 }

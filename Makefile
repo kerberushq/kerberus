@@ -22,6 +22,10 @@ generate:
 	go generate ./...
 	./hack/update-codegen.sh
 
+.PHONY: generate-internal
+generate-internal:
+	./hack/update-codegen-internal.sh
+
 .PHONY: manager
 manager:
 	go build -o build/_output/bin/kerberus -ldflags ${LDFLAGS} ./cmd/$@ 

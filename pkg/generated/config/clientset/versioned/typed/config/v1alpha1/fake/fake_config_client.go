@@ -28,8 +28,8 @@ type FakeCrdV1alpha1 struct {
 	*testing.Fake
 }
 
-func (c *FakeCrdV1alpha1) Configs(namespace string) v1alpha1.ConfigInterface {
-	return &FakeConfigs{c, namespace}
+func (c *FakeCrdV1alpha1) Kerberuses(namespace string) v1alpha1.KerberusInterface {
+	return &FakeKerberuses{c, namespace}
 }
 
 // RESTClient returns a RESTClient that is used to communicate
